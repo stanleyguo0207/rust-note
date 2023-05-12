@@ -11,5 +11,11 @@ struct Cli {
 
 fn main() {
     let args = Cli::parse();
-    println!("args:{} path:{:?}", args.pattern, args.path.as_os_str())
+    let content = std::fs::read_to_string(&args.path).expect("count not read file");
+
+    for line in content.lines() {
+        if line.contains(&args.pattern) {
+            println!("{}", line)
+        }
+    }
 }
