@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use clap::Parser;
 
 /// Search for a pattern in a file and display the lines that contain it.
@@ -8,14 +10,6 @@ struct Cli {
 }
 
 fn main() {
-    println!("Hello, world!");
-
-    let pattern = std::env::args().nth(1).expect("no pattern given");
-    let path = std::env::args().nth(2).expect("no path given");
-    let args = Cli {
-        pattern: pattern,
-        path: std::path::PathBuf::from(path),
-    };
-
+    let args = Cli::parse();
     println!("args:{} path:{:?}", args.pattern, args.path.as_os_str())
 }
