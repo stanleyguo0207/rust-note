@@ -1,1 +1,6 @@
+# cargo
 */target/
+
+# windows
+*.exe
+*.pdb
