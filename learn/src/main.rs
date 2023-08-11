@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 fn main() {
     println!("Hello, world!");
 }
@@ -164,4 +162,51 @@ fn test_struct() {
         "The area of the rectangle is {} square pixels.",
         area(&rect1)
     );
+}
+
+#[derive(Debug)]
+enum UsState {
+    Alabama,
+    Alaska,
+    // --snip--
+}
+
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter(UsState),
+}
+
+fn value_in_cents(coin: Coin) -> u8 {
+    match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter(state) => {
+            println!("State quarter from {:?}!", state);
+            25
+        }
+    }
+}
+
+#[test]
+fn test_match() {
+    println!("coin is {}", value_in_cents(Coin::Dime));
+
+    println!(
+        "coin is {}",
+        value_in_cents(Coin::Quarter(UsState::Alabama))
+    )
+}
+
+#[test]
+fn test_if_let() {
+    let coin = Coin::Quarter(UsState::Alabama);
+    let mut count = 0;
+    if let Coin::Quarter(state) = coin {
+        println!("State quarter from {:?}!", state);
+    } else {
+        count += 1;
+    }
 }
