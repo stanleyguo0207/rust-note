@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 fn main() {
     println!("Hello, world!");
 }
@@ -209,4 +211,187 @@ fn test_if_let() {
     } else {
         count += 1;
     }
+}
+
+#[test]
+fn test_vector() {
+    let mut v: Vec<i32> = Vec::new();
+
+    v.push(5);
+    v.push(12);
+    v.push(13);
+
+    for i in &v {
+        println!("{i}");
+    }
+
+    for i in &mut v {
+        *i += 50;
+    }
+
+    for i in &v {
+        println!("{i}");
+    }
+}
+
+#[test]
+fn test_string2() {
+    let s1 = String::from("Hello, ");
+    let s2 = String::from("world!");
+    let s3 = s1 + &s2;
+
+    // println!("s1 is {s1}");
+    println!("s1 is {s2}");
+    println!("s1 is {s3}");
+}
+
+#[test]
+fn test_string3() {
+    for c in "Зд".chars() {
+        println!("{c}");
+    }
+
+    for b in "Зд".bytes() {
+        println!("{b}");
+    }
+}
+
+#[test]
+fn test_hash_map() {
+    use std::collections::HashMap;
+    let mut scores = HashMap::new();
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Yellow"), 50);
+    for (key, value) in &scores {
+        println!("{key}: {value}");
+    }
+}
+
+#[test]
+fn test_hash_map2() {
+    use std::collections::HashMap;
+    let text = "hello world wonderful world";
+    let mut map = HashMap::new();
+    for word in text.split_whitespace() {
+        let count = map.entry(word).or_insert(0);
+        *count += 1;
+    }
+    println!("{:?}", map);
+}
+
+#[test]
+fn test_panic() {
+    let v = vec![1, 2, 3];
+    v[99];
+}
+
+fn largest_i32(list: &[i32]) -> &i32 {
+    let mut largest = &list[0];
+    for item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+    largest
+}
+
+fn largest_char(list: &[char]) -> &char {
+    let mut largest = &list[0];
+    for item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+    largest
+}
+
+#[test]
+fn test_largest() {
+    let number_list = vec![34, 50, 25, 100, 65];
+    let result = largest_i32(&number_list);
+    println!("The largest number is {}", result);
+    assert_eq!(*result, 100);
+    let char_list = vec!['y', 'm', 'a', 'q'];
+    let result = largest_char(&char_list);
+    println!("The largest char is {}", result);
+    assert_eq!(*result, 'y');
+}
+
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Point<T> {
+    fn x(&self) -> &T {
+        &self.x
+    }
+}
+
+impl Point<f32> {
+    fn distance_from_origin(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+}
+
+impl<T: Display + PartialOrd> Point<T> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("x = {}, y = {}", self.x, self.y);
+        } else {
+            println!("y = {}, x = {}", self.y, self.x);
+        }
+    }
+}
+
+#[test]
+fn test_point() {
+    let p = Point { x: 5, y: 10 };
+    println!("p.x = {}", p.x());
+
+    let p2: Point<f32> = Point { x: 10.0, y: 5.0 };
+    println!("distace = {}", p2.distance_from_origin());
+
+    p.cmp_display();
+    p2.cmp_display();
+}
+
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
+#[test]
+fn test_longest() {
+    let string1 = String::from("abcd");
+    let string2 = "xyz";
+
+    let result = longest(string1.as_str(), string2);
+    println!("The longest string is {}", result);
+}
+
+fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a str
+where
+    T: Display,
+{
+    println!("Announcement! {}", ann);
+
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
+#[test]
+fn test_longest_with_an_announcement() {
+    let string1 = String::from("abcd");
+    let string2 = "xyz";
+
+    let result =
+        longest_with_an_announcement(string1.as_str(), string2, "Today is someone's birthday!");
+    println!("The longest string is {}", result);
 }
