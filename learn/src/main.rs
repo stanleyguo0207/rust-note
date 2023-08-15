@@ -395,3 +395,72 @@ fn test_longest_with_an_announcement() {
         longest_with_an_announcement(string1.as_str(), string2, "Today is someone's birthday!");
     println!("The longest string is {}", result);
 }
+
+fn generate_workout(intensity: u32, random_number: u32) {
+    use std::thread;
+    use std::time::Duration;
+
+    let expensive_closure = |num: u32| -> u32 {
+        println!("calculating slowly...");
+        thread::sleep(Duration::from_secs(2));
+        num
+    };
+
+    if intensity < 25 {
+        println!("Today, do {} pushups!", expensive_closure(intensity));
+        println!("Next, do {} situps!", expensive_closure(intensity));
+    } else {
+        if random_number == 3 {
+            println!("Take a break today! Remember to stay hydrated!");
+        } else {
+            println!("Today, run for {} minutes!", expensive_closure(intensity));
+        }
+    }
+}
+
+#[test]
+fn test_generate_workout() {
+    let simulated_user_specified_value = 10;
+    let simulated_random_number = 7;
+
+    generate_workout(simulated_user_specified_value, simulated_random_number);
+}
+
+#[test]
+fn test_lambda1() {
+    let list = vec![1, 2, 3];
+    println!("Before defining closure: {:?}", list);
+
+    let only_borrows = || println!("From closure: {:?}", list);
+
+    println!("Before calling closure: {:?}", list);
+    only_borrows();
+    println!("After calling closure: {:?}", list);
+}
+
+#[test]
+fn test_lambda2() {
+    let mut list = vec![1, 2, 3];
+    println!("Before defining closure: {:?}", list);
+
+    let mut borrows_mutably = || list.push(7);
+
+    borrows_mutably();
+    println!("After calling closure: {:?}", list);
+}
+
+#[test]
+fn test_lambda3() {
+    use std::thread;
+
+    let list = vec![1, 2, 3];
+    println!(
+        "[{:?}] Before defining closure: {:?}",
+        thread::current().id(),
+        list
+    );
+
+    thread::spawn(move || println!("[{:?}] From thread: {:?}", thread::current().id(), list))
+        .join()
+        .unwrap();
+}
