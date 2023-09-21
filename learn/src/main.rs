@@ -666,3 +666,118 @@ fn test_filters_by_size() {
         ]
     )
 }
+
+#[test]
+fn test_box() {
+    let b = Box::new(5);
+    println!("b = {}", b);
+}
+
+enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+
+#[test]
+fn test_list() {
+    use List::{Cons, Nil};
+
+    let list = Cons(1, Box::new(Cons(2, Box::new(Cons(3, Box::new(Nil))))));
+}
+
+#[test]
+fn test_box_addr() {
+    let x = 5;
+    let y = Box::new(x);
+
+    assert_eq!(5, x);
+    assert_eq!(5, *y);
+}
+
+use std::ops::Deref;
+
+struct MyBox<T>(T);
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox(x)
+    }
+}
+
+impl<T> Deref for MyBox<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[test]
+fn test_mybox() {
+    let x = 5;
+    let y = MyBox::new(x);
+
+    assert_eq!(5, x);
+    assert_eq!(5, *y);
+}
+
+fn mybox_hello(name: &str) {
+    println!("Hello, {name}!");
+}
+
+#[test]
+fn test_mybox_cast() {
+    let m = MyBox::new(String::from("Rust"));
+    mybox_hello(&m);
+    // mybox_hello(&(*m)[..]);
+}
+
+struct CustomSmartPointer {
+    data: String,
+}
+
+impl Drop for CustomSmartPointer {
+    fn drop(&mut self) {
+        println!("Dropping CustomSmartPointer with data `{}`!", self.data);
+    }
+}
+
+#[test]
+fn test_custom_drop() {
+    let c = CustomSmartPointer {
+        data: String::from("my stuff"),
+    };
+
+    let d = CustomSmartPointer {
+        data: String::from("other stuff"),
+    };
+
+    println!("CustomSmartPointers created.");
+    drop(c);
+    println!("CustomSmartPointer dropped before the end of main.");
+}
+
+use std::rc::Rc;
+
+enum ListRef {
+    Cons2(i32, Rc<ListRef>),
+    Nil2,
+}
+
+#[test]
+fn test_list_ref() {
+    use ListRef::{Cons2, Nil2};
+
+    let a = Rc::new(Cons2(
+        1,
+        Rc::new(Cons2(2, Rc::new(Cons2(3, Rc::new(Nil2))))),
+    ));
+    println!("count after creating a = {}", Rc::strong_count(&a));
+    let b = Cons2(3, Rc::clone(&a));
+    println!("count after creating b = {}", Rc::strong_count(&a));
+    {
+        let c = Cons2(4, Rc::clone(&a));
+        println!("count after creating c = {}", Rc::strong_count(&a));
+    }
+    println!("count after c goes out of scope = {}", Rc::strong_count(&a));
+}
