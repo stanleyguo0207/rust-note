@@ -781,3 +781,69 @@ fn test_list_ref() {
     }
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
 }
+
+use std::cell::RefCell;
+
+#[derive(Debug)]
+enum ListRcRef {
+    Cons(Rc<RefCell<i32>>, Rc<ListRcRef>),
+    Nil,
+}
+
+#[test]
+fn test_list_rcref() {
+    use crate::ListRcRef::{Cons, Nil};
+
+    let value = Rc::new(RefCell::new(5));
+
+    let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
+    let b = Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));
+    let c = Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));
+
+    *value.borrow_mut() += 10;
+
+    println!("a after = {:?}", a);
+    println!("b after = {:?}", b);
+    println!("c after = {:?}", c);
+}
+
+#[derive(Debug)]
+enum ListRefLoop {
+    Cons(i32, RefCell<Rc<ListRefLoop>>),
+    Nil,
+}
+
+impl ListRefLoop {
+    fn tail(&self) -> Option<&RefCell<Rc<ListRefLoop>>> {
+        match self {
+            ListRefLoop::Cons(_, item) => Some(item),
+            ListRefLoop::Nil => None,
+        }
+    }
+}
+
+#[test]
+fn test_list_ref_loop() {
+    use crate::ListRefLoop::{Cons, Nil};
+
+    let a = Rc::new(Cons(5, RefCell::new(Rc::new(Nil))));
+
+    println!("a initial rc count = {}", Rc::strong_count(&a));
+    println!("a next item = {:?}", a.tail());
+
+    let b = Rc::new(Cons(10, RefCell::new(Rc::clone(&a))));
+
+    println!("a rc count after b creation = {}", Rc::strong_count(&a));
+    println!("b initial rc count = {}", Rc::strong_count(&b));
+    println!("b next item = {:?}", b.tail());
+
+    if let Some(link) = a.tail() {
+        *link.borrow_mut() = Rc::clone(&b);
+    }
+
+    println!("b rc count after changing a = {}", Rc::strong_count(&b));
+    println!("a rc count after changing a = {}", Rc::strong_count(&a));
+    // Uncomment the next line to see that we have a cycle;
+    // it will overflow the stack
+    // println!("a next item = {:?}", a.tail());
+}
