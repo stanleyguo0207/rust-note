@@ -981,3 +981,48 @@ fn test_mutex2() {
     }
     println!("Result: {}", *counter.lock().unwrap());
 }
+
+#[test]
+fn test_unsafe1() {
+    let mut num = 5;
+    let ptr1 = &num as *const i32;
+    let ptr2 = &mut num as *mut i32;
+
+    unsafe {
+        println!("*ptr1 = {}", *ptr1);
+        println!("*ptr2 = {}", *ptr2);
+    }
+}
+
+use std::fmt;
+
+trait OutlinePrint: fmt::Display {
+    fn outline_print(&self) {
+        let output = self.to_string();
+        let len = output.len();
+        println!("{}", "*".repeat(len + 4));
+        println!("*{}*", " ".repeat(len + 2));
+        println!("* {} *", output);
+        println!("*{}*", " ".repeat(len + 2));
+        println!("{}", "*".repeat(len + 4));
+    }
+}
+
+struct PrintPoint {
+    x: i32,
+    y: i32,
+}
+
+impl OutlinePrint for PrintPoint {}
+
+impl fmt::Display for PrintPoint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+#[test]
+fn test_outline_print() {
+    let p = PrintPoint { x: 1, y: 3 };
+    p.outline_print();
+}
