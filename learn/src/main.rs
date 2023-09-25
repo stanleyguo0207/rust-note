@@ -1026,3 +1026,31 @@ fn test_outline_print() {
     let p = PrintPoint { x: 1, y: 3 };
     p.outline_print();
 }
+
+struct Wrapper(Vec<String>);
+
+impl fmt::Display for Wrapper {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}]", self.0.join(", "))
+    }
+}
+
+#[test]
+fn test_wrapper() {
+    let w = Wrapper(vec![String::from("hello"), String::from("world")]);
+    println!("w = {}", w);
+}
+
+fn func_add_one(x: i32) -> i32 {
+    x + 1
+}
+
+fn func_add_twice(f: fn(i32) -> i32, arg: i32) -> i32 {
+    f(arg) + f(arg)
+}
+
+#[test]
+fn test_func_ptr() {
+    let answer = func_add_twice(func_add_one, 5);
+    println!("The answer is: {}", answer);
+}
